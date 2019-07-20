@@ -1,0 +1,25 @@
+version: 2 # use version 2.0 of CircleCI
+jobs: # a basic unit of work in a run
+  build: # runs not using `Workflows` must have a `build` job as entry point
+    macos:  # indicate that we are using the macOS executor
+      xcode: "10.0.0" # indicate our selected version of Xcode
+    steps: # a series of commands to run
+      - checkout  # pull down code from your version control system.
+      - run:
+          # run our tests using xcode's cli tool `xcodebuild`
+          name: Setup Python
+          command: |
+            export PYTHON_INSTALLER=pyenv
+            export TRAVIS_PYTHON_VERSION=2.7.14
+            brew update
+            brew install pyenv-virtualenv
+            pyenv versions
+            eval "$(pyenv init -)"
+            pyenv install $TRAVIS_PYTHON_VERSION
+            PYTHON_ENV_NAME=virtual-env-$TRAVIS_PYTHON_VERSION
+            pyenv virtualenv $TRAVIS_PYTHON_VERSION $PYTHON_ENV_NAME
+            pyenv activate $PYTHON_ENV_NAME
+            python --version
+            python -m pip install PyYAML argparse rospkg vcstools catkin_pkg python-dateutil rosdistro
+            python -m pip install -e .
+            python -m pip install nose coverage flake8 mock codecov
